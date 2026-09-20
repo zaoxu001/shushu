@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "shushu"
+version = "0.1.0"
+description = "中国术数核心算法：只做计算，不做解释"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "zaoxu001" }]
+keywords = ["bazi", "four-pillars", "chinese-metaphysics", "ganzhi", "astrology"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Natural Language :: Chinese (Simplified)",
+]
+dependencies = ["lunar_python>=1.4.8"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.urls]
+Homepage = "https://github.com/zaoxu001/shushu"
+Issues = "https://github.com/zaoxu001/shushu/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["shushu"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

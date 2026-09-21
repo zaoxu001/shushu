@@ -1,7 +1,7 @@
-# 关掉空白 issue：让人从模板进，问题里才会带上出处与可复现的例子。
-# 那两样是这个项目能不能核对一条规则的前提，缺了就只能来回追问。
+# 关闭空白 issue：经模板提交可确保包含出处与可复现实例。
+# 这两项是核对一条规则的前提，缺失则只能往复追问。
 blank_issues_enabled: false
 contact_links:
-  - name: 用法提问与讨论
+  - name: 用法咨询与讨论
     url: https://github.com/zaoxu001/shushu/discussions
-    about: 怎么用、能不能支持某个场景、想法交流，都在讨论区。issue 留给具体的缺陷与口径分歧。
+    about: 用法咨询、功能建议与一般交流请使用讨论区。issue 用于提交具体缺陷与口径分歧。

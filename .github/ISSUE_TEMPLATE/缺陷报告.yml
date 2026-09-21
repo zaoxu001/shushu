@@ -1,17 +1,17 @@
-name: 算错了
-description: 程序报错、崩溃，或结果明显不对（不是口径之争）
+name: 缺陷报告
+description: 程序报错、崩溃，或结果存在客观错误（非口径分歧）
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        如果是「你那一派算法不同」，请用「口径分歧」那个模板。
-        这里收的是硬错误：报错、崩溃、或者结果自相矛盾（比如藏干表与司令分日对不上）。
+        若属于「所依流派算法不同」，请使用「口径分歧」模板。
+        本模板用于客观错误：程序报错、崩溃，或结果自相矛盾（例如藏干表与人元司令分日不一致）。
   - type: textarea
     id: repro
     attributes:
-      label: 怎么复现
-      description: 贴一段能直接跑的代码
+      label: 复现步骤
+      description: 提供一段可直接运行的代码
       render: python
       placeholder: |
         from shushu.bazi import build_chart
@@ -22,7 +22,7 @@ body:
     id: actual
     attributes:
       label: 实际输出
-      description: 有报错就把完整 traceback 贴上
+      description: 如有报错，请附完整 traceback
       render: text
     validations: { required: true }
   - type: input

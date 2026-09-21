@@ -5,20 +5,20 @@ body:
   - type: markdown
     attributes:
       value: |
-        术数各派口径本来就不同，同一张盘算出两个答案是常事，不一定谁错。
-        这里要的是**依据**：说清你那一派怎么算、出自哪本书哪一节，比说「这是错的」有用得多。
-        经过核对的口径分歧会合入计算逻辑，或者作为可选口径并存。
+        术数各派口径不同，同一张命盘得出不同结论是常见情形，未必存在对错之分。
+        本模板需要的是**可核对的依据**：说明所依流派的算法及其出处。
+        经核对成立的分歧，将调整默认口径，或作为可选口径与现有实现并存。
   - type: input
     id: where
     attributes:
-      label: 哪一处
+      label: 分歧所在
       placeholder: 例如 shushu.bazi.yongshen.select，或者「未月的藏干次序」
     validations: { required: true }
   - type: textarea
     id: case
     attributes:
-      label: 一个能复现的例子
-      description: 四柱、性别，以及这里算出什么、你认为该算出什么
+      label: 可复现的实例
+      description: 四柱、性别，本项目的输出，以及你认为正确的输出
       placeholder: |
         四柱：丙子 壬辰 乙酉 癸未，女
         这里算出：用土喜火
@@ -37,5 +37,5 @@ body:
   - type: textarea
     id: scope
     attributes:
-      label: 这是通例还是个案
-      description: 这条规则在什么范围内成立？有没有例外？知道边界才好决定是改默认口径还是加一个可选项。
+      label: 适用范围
+      description: 该规则的成立范围与已知例外。明确边界有助于判断应调整默认口径还是增加可选项。

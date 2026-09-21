@@ -72,7 +72,7 @@ print(r.score, r.breakdown)                # 58.8 {'base': 50.0, 'year_gan|丙(�
 | 排盘 | `bazi.chart` | 四柱、藏干、司令、十神、纳音、地势、命宫身宫胎元 |
 | 排运 | `bazi.luck_cycle` | 起运岁数与交运时刻、大运、流年、流月 |
 | 量化 | `bazi.strength` | 五行力量、日主旺衰五档、十神力量、寒暖燥湿 |
-| 取用 | `bazi.tiaohou` `geju` `yongshen` | 调候、月令格局与相神、用喜忌仇闲 |
+| 取用 | `bazi.tiaohou` `geju` `yongshen` | 调候、月令格局与相神、通用规则与本盘成象的相抵之处、用喜忌仇闲 |
 | 引动 | `bazi.interact` `score` | 岁运对原局的作用、可解释的逐年评分与曲线 |
 | 双盘 | `bazi.hepan` | 两张盘的关系指标 |
 | 参考 | `bazi.shensha` | 神煞落点。取用逻辑不采信 |

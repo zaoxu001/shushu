@@ -12,6 +12,7 @@ useful/avoid 翻转吉凶的，等于让格局倒过来依赖取用；取用一�
 from __future__ import annotations
 
 from dataclasses import dataclass
+from collections.abc import Sequence
 from typing import Literal
 
 from ..core import ganzhi
@@ -19,8 +20,8 @@ from . import strength as _st
 from .strength import Quad, ten_god
 
 __all__ = [
-    "Pattern", "PatternOps", "PatternHit",
-    "month_pattern", "pattern_ops", "scan_patterns", "PATTERN_OPS",
+    "Pattern", "PatternOps", "PatternHit", "OpsConflict",
+    "month_pattern", "pattern_ops", "scan_patterns", "ops_conflicts", "PATTERN_OPS",
 ]
 
 # ── 成象扫描的门槛（本包取值，可调）──────────────────────────────
@@ -199,6 +200,55 @@ def _imbalance(a: float, b: float, na: str, nb: str) -> tuple[str, ...]:
         return ()
     (hi, hn), (lo, ln) = ((a, na), (b, nb)) if a >= b else ((b, nb), (a, na))
     return (f"{ln}轻{hn}重",) if hi / lo >= IMBALANCE_RATIO else ()
+
+
+
+#: 具体十神归入成象所用的大类
+_GROUP_OF: dict[str, str] = {
+    "正财": "财", "偏财": "财",
+    "正官": "官杀", "七杀": "官杀",
+    "正印": "印", "偏印": "印",
+    "食神": "食伤", "伤官": "伤官",
+    "比肩": "比劫", "劫财": "劫财",
+}
+
+
+@dataclass(frozen=True)
+class OpsConflict:
+    """通用顺逆规则与本盘成象相抵的一处。
+
+    `pattern_ops` 给的是《子平真诠》对某一格的通行取舍，它只认格名、不看盘；
+    `scan_patterns` 扫的是这张盘上实际成立的象，它看盘。两者相抵时**以成象为准**——
+    规则说的是常态，成象说的是这一张。
+
+    最常见的一种：印格通例忌财（财能坏印），但若这张盘印已过旺成病，财损其印反倒是药。
+    """
+
+    ten_god: str      #: 被通用规则列为忌神、却在本盘成了吉象的那一路
+    hit: str          #: 是哪个成象让它翻了案
+    chain: tuple[str, ...]
+    note: str = "通用规则不看盘，成象看盘；两者相抵以成象为准"
+
+
+def ops_conflicts(ops: PatternOps | None,
+                  hits: Sequence[PatternHit]) -> tuple[OpsConflict, ...]:
+    """找出「通用规则列为忌、本盘却成吉象」的那几路。
+
+    成象的 actor 记的是大类（财、印、官杀），通用规则的忌神记的是具体十神
+    （正财、偏财），所以按「具体十神属于哪一大类」来配对。
+
+    调用方拿到非空结果时，应当按成象讲，不要把通用忌神照搬给用户，
+    否则同一页上会出现「最怕财」与「财损印是吉」两句自相矛盾的话。
+    """
+    if not ops or not hits:
+        return ()
+    good = {h.actor: h for h in hits if h.kind == "吉" and h.actor}
+    out: list[OpsConflict] = []
+    for taboo in ops.taboo:
+        hit = good.get(_GROUP_OF.get(taboo, taboo))
+        if hit is not None:
+            out.append(OpsConflict(ten_god=taboo, hit=hit.name, chain=hit.chain))
+    return tuple(out)
 
 
 def scan_patterns(quad: Quad, *, month_siling: str | None = None) -> list[PatternHit]:

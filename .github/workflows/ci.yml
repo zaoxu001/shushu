@@ -1,0 +1,32 @@
+name: 测试
+
+# 用 pull_request 而不是 pull_request_target：后者跑在目标仓库的上下文里、拿得到仓库机密，
+# 别人从 fork 提一个改了 workflow 的 PR 就能把机密偷走。这里不需要机密，也就没必要冒那个险。
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# 默认只读。这个工作流只是跑测试，不往仓库里写任何东西。
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12"]   # 声明支持的下界与当前主流各跑一遍
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: 安装
+        run: |
+          python -m pip install -U pip
+          pip install -e . pytest
+      - name: 跑测试
+        run: pytest -q

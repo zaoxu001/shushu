@@ -1,0 +1,41 @@
+name: 口径分歧
+description: 某一条规则算得不对，或者你那一派的算法与这里不同
+labels: ["口径"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        术数各派口径本来就不同，同一张盘算出两个答案是常事，不一定谁错。
+        这里要的是**依据**：说清你那一派怎么算、出自哪本书哪一节，比说「这是错的」有用得多。
+        经过核对的口径分歧会合入计算逻辑，或者作为可选口径并存。
+  - type: input
+    id: where
+    attributes:
+      label: 哪一处
+      placeholder: 例如 shushu.bazi.yongshen.select，或者「未月的藏干次序」
+    validations: { required: true }
+  - type: textarea
+    id: case
+    attributes:
+      label: 一个能复现的例子
+      description: 四柱、性别，以及这里算出什么、你认为该算出什么
+      placeholder: |
+        四柱：丙子 壬辰 乙酉 癸未，女
+        这里算出：用土喜火
+        应当是：用火喜木
+      render: text
+    validations: { required: true }
+  - type: textarea
+    id: source
+    attributes:
+      label: 依据
+      description: 典籍名、卷次、原文；或某一派的成文口诀。没有出处的判断无法核对，也就无法合入。
+      placeholder: |
+        《穷通宝鉴》乙木·辰月：…（原文）
+        或：某派口诀「…」，见《…》第…页
+    validations: { required: true }
+  - type: textarea
+    id: scope
+    attributes:
+      label: 这是通例还是个案
+      description: 这条规则在什么范围内成立？有没有例外？知道边界才好决定是改默认口径还是加一个可选项。

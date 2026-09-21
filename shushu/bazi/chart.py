@@ -144,6 +144,15 @@ class Chart:
         return dict(zip(PILLAR_NAMES, self.pillars))
 
     @property
+    def quad(self) -> dict[str, tuple[str, str]]:
+        """四柱的最简形式：{"year": ("丙", "子"), ...}。
+
+        量化、取用、引动、合盘这几层都收这个结构，所以排完盘直接 `chart.quad`
+        就能往下传，不必自己拆一遍。
+        """
+        return {name: (p.gan, p.zhi) for name, p in zip(PILLAR_NAMES, self.pillars)}
+
+    @property
     def bazi(self) -> str:
         """四柱连写，如「丙子 壬辰 乙酉 癸未」。这是唯一的字符串便利输出。"""
         return " ".join(p.ganzhi for p in self.pillars)

@@ -53,7 +53,7 @@ c = chart.build_chart(datetime(1996, 4, 18, 14, 6), longitude=114.93, gender=0)
 print(c.bazi)                              # 丙子 壬辰 乙酉 癸未
 
 s = strength.day_master_strength(c.quad, month_siling=c.siling)
-print(s.label, round(s.ratio, 3))          # 中和 0.469
+print(s.label, round(s.ratio, 3))          # 中和 0.453
 
 y = yongshen.select(c.quad, month_siling=c.siling)
 print(y.yong, y.xi, y.ji, y.chou)          # 土 火 木 水

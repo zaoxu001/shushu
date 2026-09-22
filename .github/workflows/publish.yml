@@ -1,0 +1,53 @@
+name: 发布到 PyPI
+
+# 只有打 tag 才发版。推 main 不发——版本号是个郑重的动作，得有个明确的手势去触发它。
+# tag 名与 pyproject.toml 里的 version 必须一致，下面会核对，对不上就中止。
+on:
+  push:
+    tags: ["v*"]
+
+permissions: {}   # 默认什么都不给，各 job 自己声明
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # tag 写错版本是最常见的发版事故，而 PyPI 的版本号用掉就不能回收。宁可在这里停下。
+      - name: 核对 tag 与 version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VER=$(python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "tag=$TAG  pyproject=$VER"
+          [ "$TAG" = "$VER" ] || { echo "::error::tag 与 pyproject.toml 的 version 不一致，中止"; exit 1; }
+
+      - run: pip install -U build twine
+      - run: python -m build
+      - run: twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    # 环境名要与 PyPI 上登记的可信发布者一致。它还能加人工审批，作为发版前的最后一道闸。
+    environment:
+      name: pypi
+      url: https://pypi.org/p/tianzhi-core
+    permissions:
+      id-token: write   # 换取 OIDC 身份凭证用，这是免 token 发布的关键
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@v1.14.2

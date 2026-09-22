@@ -11,7 +11,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import pytest
 
 from conftest_shusu_yunshu import BASE_QUAD, FAVORABLE, UNFAVORABLE, sample_cycles
-from shushu.bazi import score
+from tianzhi_core.bazi import score
 
 
 def _score(gz: str, **kw) -> score.YearScore:

@@ -10,8 +10,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import pytest
 
 from conftest_shusu_yunshu import BASE_QUAD
-from shushu.bazi import hepan
-from shushu.core import ganzhi
+from tianzhi_core.bazi import hepan
+from tianzhi_core.core import ganzhi
 
 OTHER: dict[str, tuple[str, str]] = {
     "year": ("庚", "午"),

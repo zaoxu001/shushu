@@ -14,7 +14,7 @@ body:
       description: 提供一段可直接运行的代码
       render: python
       placeholder: |
-        from shushu.bazi import build_chart
+        from tianzhi_core.bazi import build_chart
         c = build_chart(datetime(1996, 4, 18, 13, 46), longitude=116.4)
         print(c.quad)
     validations: { required: true }
@@ -34,4 +34,4 @@ body:
     id: env
     attributes:
       label: 版本与环境
-      placeholder: shushu 0.1.0，Python 3.12，macOS
+      placeholder: tianzhi-core 0.1.0，Python 3.12，macOS

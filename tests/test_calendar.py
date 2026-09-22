@@ -5,8 +5,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from shushu.calendar import jieqi, solar_time
-from shushu.core import ganzhi as gz
+from tianzhi_core.calendar import jieqi, solar_time
+from tianzhi_core.core import ganzhi as gz
 
 #: 基准命例：1996-04-18 13:46，赣州经度 114.93
 BASE_CLOCK = datetime(1996, 4, 18, 13, 46)

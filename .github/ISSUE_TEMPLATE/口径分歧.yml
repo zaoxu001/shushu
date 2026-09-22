@@ -12,7 +12,7 @@ body:
     id: where
     attributes:
       label: 分歧所在
-      placeholder: 例如 shushu.bazi.yongshen.select，或者「未月的藏干次序」
+      placeholder: 例如 tianzhi_core.bazi.yongshen.select，或者「未月的藏干次序」
     validations: { required: true }
   - type: textarea
     id: case

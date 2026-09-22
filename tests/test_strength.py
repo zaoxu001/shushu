@@ -4,8 +4,8 @@ from __future__ import annotations
 import pytest
 from conftest import CASE_WU_YIN, CASE_XIN_ZI, CASE_YI_CHEN, quad, random_quads
 
-from shushu.bazi import strength as S
-from shushu.core import ganzhi, wuxing
+from tianzhi_core.bazi import strength as S
+from tianzhi_core.core import ganzhi, wuxing
 
 
 def test_element_power_keys_and_total():

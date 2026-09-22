@@ -6,7 +6,7 @@
 """
 import pytest
 
-from shushu.bazi import geju
+from tianzhi_core.bazi import geju
 
 PRINT_HEAVY = {"year": ("丙", "子"), "month": ("壬", "辰"),
                "day": ("乙", "酉"), "hour": ("癸", "未")}

@@ -1,8 +1,8 @@
-# shushu · 东方术数核心算法
+# tianzhi-core · 东方术数核心算法
 
 术数是一套以干支为坐标的推演体系。八字、六壬、六爻、奇门、紫微、梅花，各有典籍与推演之法，底下却共用同一套坐标：干支、五行、节气、长生、旺相休囚死。
 
-shushu 把这套共用的底座做成代码，再在其上按门类展开。它是各类术数软件与 AI 应用的计算基座。
+tianzhi-core 把这套共用的底座做成代码，再在其上按门类展开。它是各类术数软件与 AI 应用的计算基座。
 
 ## 术数计算的三段
 
@@ -12,9 +12,9 @@ shushu 把这套共用的底座做成代码，再在其上按门类展开。它�
 
 **三、判断与推演。** 五行力量如何量化、日主旺衰如何分档、用神如何取、格局如何定、岁运如何引动原局。这一段有流派、有分歧、有取舍，也是做命理产品真正耗时的地方。
 
-前两段已有成熟实现，[lunar-python](https://github.com/6tail/lunar-python) 做得完整而准确，shushu 直接采用，不作重复实现。第三段目前缺少可被检验的公共实现，各家自写、彼此矛盾，这是 shushu 补的部分。
+前两段已有成熟实现，[lunar-python](https://github.com/6tail/lunar-python) 做得完整而准确，tianzhi-core 直接采用，不作重复实现。第三段目前缺少可被检验的公共实现，各家自写、彼此矛盾，这是 tianzhi-core 补的部分。
 
-同时 shushu 把三段统一在一致的类型与契约之下：排盘产出的结构可以直接送进量化与取用，流派分歧处收敛为显式参数，全链路为纯函数、可测试、跨进程一致。三段因此成为一条可组合的流水线，而不是三处各自为政的调用。
+同时 tianzhi-core 把三段统一在一致的类型与契约之下：排盘产出的结构可以直接送进量化与取用，流派分歧处收敛为显式参数，全链路为纯函数、可测试、跨进程一致。三段因此成为一条可组合的流水线，而不是三处各自为政的调用。
 
 **给谁用**
 
@@ -25,7 +25,7 @@ shushu 把这套共用的底座做成代码，再在其上按门类展开。它�
 ## 架构
 
 ```
-shushu/
+tianzhi_core/
   calendar/    历法    真太阳时、二十四节气时刻、距节天数
   core/        通用    五行生克、干支属性藏干、合冲刑害、十二长生、
                        旺相休囚死、人元司令
@@ -38,7 +38,7 @@ shushu/
 ## 安装
 
 ```bash
-pip install shushu
+pip install tianzhi-core
 ```
 
 ## 用
@@ -47,7 +47,7 @@ pip install shushu
 
 ```python
 from datetime import datetime
-from shushu.bazi import chart, strength, yongshen, score
+from tianzhi_core.bazi import chart, strength, yongshen, score
 
 c = chart.build_chart(datetime(1996, 4, 18, 14, 6), longitude=114.93, gender=0)
 print(c.bazi)                              # 丙子 壬辰 乙酉 癸未
@@ -93,7 +93,7 @@ print(r.score, r.breakdown)                # 58.8 {'base': 50.0, 'year_gan|丙(�
 
 ## 致谢
 
-[lunar-python](https://github.com/6tail/lunar-python) 提供历法与排盘：公历农历互转、二十四节气的精确时刻、干支纪时、藏干、十神、纳音、地势、旬空、命宫身宫胎元、大运排布。这一层完整且准确，shushu 在其上建立类型化的数据结构与统一契约，并将流派分歧处显式化为参数。
+[lunar-python](https://github.com/6tail/lunar-python) 提供历法与排盘：公历农历互转、二十四节气的精确时刻、干支纪时、藏干、十神、纳音、地势、旬空、命宫身宫胎元、大运排布。这一层完整且准确，tianzhi-core 在其上建立类型化的数据结构与统一契约，并将流派分歧处显式化为参数。
 
 调候与喜忌两张一百二十格对照表、人元司令分日表，整理自 [china-testing/bazi](https://github.com/china-testing/bazi) 与 [qianye-wuyu/yueyuan-bazi](https://github.com/qianye-wuyu/yueyuan-bazi) 的公开数据；原始出处为《穷通宝鉴》《金不换大运》等公版古籍。
 

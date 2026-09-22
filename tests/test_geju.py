@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from conftest import CASE_WU_YIN, CASE_XIN_ZI, CASE_YI_CHEN, quad, random_quads
 
-from shushu.bazi import geju as G
-from shushu.core import ganzhi
+from tianzhi_core.bazi import geju as G
+from tianzhi_core.core import ganzhi
 
 
 # ── 月令取格 ────────────────────────────────────────────────────

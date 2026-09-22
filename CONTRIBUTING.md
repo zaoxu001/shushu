@@ -35,8 +35,8 @@
 ## 本地开发
 
 ```bash
-git clone https://github.com/zaoxu001/shushu.git
-cd shushu
+git clone https://github.com/zaoxu001/tianzhi-core.git
+cd tianzhi-core
 pip install -e . pytest
 pytest -q
 ```

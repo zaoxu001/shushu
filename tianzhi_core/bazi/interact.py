@@ -1,7 +1,7 @@
 """岁运引动：一个外来的干支（流年、大运）落到原局上，动了哪几个字。
 
 这一层只回答「动没动、动在哪、是什么关系」，不回答「这一年吉不吉」。
-合冲刑害的判定一律下放到 :mod:`shushu.core.ganzhi`，本模块不自带任何一份冲合表——
+合冲刑害的判定一律下放到 :mod:`tianzhi_core.core.ganzhi`，本模块不自带任何一份冲合表——
 盘上两个字的关系是底层的事，上层只负责把四柱逐一喂进去、把结果排好序。
 
 合化是唯一一处需要上下文的判断。《滴天髓·化象》：「化得真者只论化，化神还有几般话。」
@@ -152,7 +152,7 @@ def pillar_relations(target_zhi: str, quad: Quad) -> list[PillarRelation]:
     """一个外来地支跟四柱各支的全部关系，按 冲 > 刑 > 自刑 > 害 > 合 排序。
 
     同一对字可能同时成立多条（如丑未既冲又刑），逐条返回，不做取舍——
-    判定全部来自 :func:`shushu.core.ganzhi.zhi_relation`，本函数只负责遍历与排序。
+    判定全部来自 :func:`tianzhi_core.core.ganzhi.zhi_relation`，本函数只负责遍历与排序。
     """
     if target_zhi not in ganzhi.ZHI:
         raise QuadError(f"不是地支：{target_zhi!r}")
@@ -184,7 +184,7 @@ class GanRelation:
 def gan_relations(target_gan: str, quad: Quad) -> list[GanRelation]:
     """一个外来天干跟四柱各干的合与冲，冲在前合在后。
 
-    判定来自 :func:`shushu.core.ganzhi.gan_relation`。
+    判定来自 :func:`tianzhi_core.core.ganzhi.gan_relation`。
     """
     if target_gan not in ganzhi.GAN:
         raise QuadError(f"不是天干：{target_gan!r}")

@@ -11,11 +11,11 @@ from datetime import datetime, timedelta
 import pytest
 from lunar_python import Solar
 
-from shushu.bazi import luck_cycle as lc
-from shushu.bazi.chart import Pillar, build_chart
-from shushu.bazi.shishen import ten_god, ten_god_of_wuxing
-from shushu.calendar import jieqi, solar_time
-from shushu.core import ganzhi as gz
+from tianzhi_core.bazi import luck_cycle as lc
+from tianzhi_core.bazi.chart import Pillar, build_chart
+from tianzhi_core.bazi.shishen import ten_god, ten_god_of_wuxing
+from tianzhi_core.calendar import jieqi, solar_time
+from tianzhi_core.core import ganzhi as gz
 
 BASE_CLOCK = datetime(1996, 4, 18, 13, 46)
 GANZHOU = 114.93

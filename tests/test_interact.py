@@ -10,8 +10,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import pytest
 
 from conftest_shusu_yunshu import BASE_QUAD
-from shushu.bazi import interact
-from shushu.core import ganzhi
+from tianzhi_core.bazi import interact
+from tianzhi_core.core import ganzhi
 
 
 # ── 基准盘的已知引动 ────────────────────────────────────────────

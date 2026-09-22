@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 # ── 成象扫描的门槛（本包取值，可调）──────────────────────────────
-# 力量刻度沿用 shushu.bazi.strength 的权重：一个透干 ≈ 10、一个本气根 ≈ 12。
+# 力量刻度沿用 tianzhi_core.bazi.strength 的权重：一个透干 ≈ 10、一个本气根 ≈ 12。
 #: 「现」——够资格参与成象的门槛，约等于一个透干或一个本气根
 PRESENT_TH: float = 10.0
 #: 「成势／为病」的门槛，约等于两个根
@@ -60,7 +60,7 @@ def month_pattern(quad: Quad, *, month_siling: str | None = None) -> Pattern:
        「以支中所藏之神，透干会支」之意，司令分日表为后世细化）；
     3. 藏干若透于年、月、时干，则以透出者定格（本气透 > 中气透 > 余气透）；
     4. 月支为日主临官则取建禄格、帝旺则取阳刃格。阳刃只给阳干——阴干有无刃
-       各家分歧，本包不替使用者选边，见 shushu.core.ganzhi.YANGREN。
+       各家分歧，本包不替使用者选边，见 tianzhi_core.core.ganzhi.YANGREN。
     """
     _st.validate_quad(quad)
     day_gan = quad["day"][0]

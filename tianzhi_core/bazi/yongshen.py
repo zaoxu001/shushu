@@ -129,7 +129,7 @@ def _tier_geju(ctx: _Ctx) -> _Pick | None:
     """特殊格局：从格与专旺。《滴天髓》「从得真者只论从」、「一气专旺」。
 
     普通的月令格（财官印食……）本身不定用神，它定的是顺逆与相神，
-    那一层在 shushu.bazi.geju.pattern_ops，不在这里顶替扶抑。
+    那一层在 tianzhi_core.bazi.geju.pattern_ops，不在这里顶替扶抑。
     """
     b = ctx.body
     if b.ratio <= FOLLOW_WEAK_RATIO and not b.has_root:

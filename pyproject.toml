@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "shushu"
+name = "tianzhi-core"
 version = "0.1.0"
 description = "中国术数核心算法：只做计算，不做解释"
 readme = "README.md"
@@ -27,11 +27,11 @@ dependencies = ["lunar_python>=1.4.8"]
 dev = ["pytest>=8.0"]
 
 [project.urls]
-Homepage = "https://github.com/zaoxu001/shushu"
-Issues = "https://github.com/zaoxu001/shushu/issues"
+Homepage = "https://github.com/zaoxu001/tianzhi-core"
+Issues = "https://github.com/zaoxu001/tianzhi-core/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["shushu"]
+packages = ["tianzhi_core"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

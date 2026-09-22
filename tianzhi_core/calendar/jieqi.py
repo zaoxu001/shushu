@@ -144,7 +144,7 @@ def month_zhi(dt: datetime) -> str:
 def days_after_jieqi(dt: datetime) -> float:
     """距上一个**节**过了多少天，带小数。
 
-    这个值喂给 `shushu.core.ganzhi.siling_gan`，用来定月令人元司令——
+    这个值喂给 `tianzhi_core.core.ganzhi.siling_gan`，用来定月令人元司令——
     同是辰月，生在清明后第三天与第二十天，当令的藏干不是一个。
     """
     dt = as_naive(dt)

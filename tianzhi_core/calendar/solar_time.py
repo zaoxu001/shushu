@@ -15,7 +15,7 @@
 
 **流派说明**：术数界对「要不要用真太阳时」有分歧。主张用的认为时柱本就是太阳时；
 主张不用的认为古人用的就是当地平太阳时甚至地方官时，且均时差在古法里没有对应概念。
-本包不替使用者选边：`shushu.bazi.chart.build_chart` 有 `use_true_solar` 开关，
+本包不替使用者选边：`tianzhi_core.bazi.chart.build_chart` 有 `use_true_solar` 开关，
 默认打开（与主流排盘软件一致），关掉就是拿钟表时间直接排。
 """
 from __future__ import annotations

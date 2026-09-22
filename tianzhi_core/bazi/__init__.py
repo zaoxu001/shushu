@@ -14,7 +14,7 @@
 """
 from __future__ import annotations
 
-# 先绑子模块名，再导符号。这样 `from shushu.bazi import shensha` 拿到的是模块，
+# 先绑子模块名，再导符号。这样 `from tianzhi_core.bazi import shensha` 拿到的是模块，
 # 不会被同名函数遮住。
 from . import (  # noqa: F401
     chart,

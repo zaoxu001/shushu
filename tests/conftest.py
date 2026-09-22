@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from shushu.core import ganzhi  # noqa: E402
+from tianzhi_core.core import ganzhi  # noqa: E402
 
 #: 基准命例：乙木生辰月，水多木漂、印重
 CASE_YI_CHEN = ("丙子", "壬辰", "乙酉", "癸未")

@@ -12,7 +12,7 @@
 4. 岁运之间的并临与相冲。
 
 所有权重都是模块级常量，标注为「本包取值，可调」。要换一套口径，改常量即可，不必动函数。
-神煞一概不入分——理由见 :mod:`shushu.bazi.shensha` 的模块说明。
+神煞一概不入分——理由见 :mod:`tianzhi_core.bazi.shensha` 的模块说明。
 """
 from __future__ import annotations
 

@@ -8,7 +8,7 @@
 1. **年柱以立春为界**，不是元旦，也不是正月初一。生在立春前的，年柱算上一年。
    这一条没有分歧。
 2. **月柱换月以节不以气**。过了立春是寅月，过了惊蛰是卯月，中气（雨水、春分）不换月。
-   这一条也没有分歧，但错得很常见，所以 `shushu.calendar.jieqi` 把节与气分开列了。
+   这一条也没有分歧，但错得很常见，所以 `tianzhi_core.calendar.jieqi` 把节与气分开列了。
 3. **晚子时（23:00–23:59）日柱算哪天，两派相争**：
    - 流派一「日柱换日」：子时既起，即算次日，所以日柱进一位。
    - 流派二「夜子时」：一天从子正（00:00）起算，23 点后仍是当日，只是时柱记作「夜子时」。
@@ -17,9 +17,9 @@
      而两派排出的日柱、时干都不同，影响整张盘。
      注意：时干一律由本盘的日干按五鼠遁推出，保持自洽——
      选了 `"same_day"` 就连时干也用当日日干遁，不会出现「日柱当日、时干次日」的混搭。
-4. **真太阳时**：见 `shushu.calendar.solar_time` 的流派说明，由 `use_true_solar` 控制。
+4. **真太阳时**：见 `tianzhi_core.calendar.solar_time` 的流派说明，由 `use_true_solar` 控制。
 
-一切干支属性（五行、阴阳、藏干、长生、司令）都从 `shushu.core.ganzhi` 取，本模块不存表。
+一切干支属性（五行、阴阳、藏干、长生、司令）都从 `tianzhi_core.core.ganzhi` 取，本模块不存表。
 唯一的例外是纳音：那是六十组固定词条（海中金、炉中火……），`core.ganzhi` 里没有，
 直接借用已经是依赖的 `lunar_python` 的表，不再抄一份。
 """
@@ -404,7 +404,7 @@ def build_chart(
         不做真太阳时修正**——这与参考实现一致，也避免了「没填经度却被按本初子午线
         平移八小时」这种静默的错误。真要按经度 0 排，请自己先调 `true_solar_time`。
     :param gender: 0 男 1 女。不影响四柱，只在起大运时决定顺逆。
-    :param use_true_solar: 是否做真太阳时修正，见 `shushu.calendar.solar_time`。
+    :param use_true_solar: 是否做真太阳时修正，见 `tianzhi_core.calendar.solar_time`。
     :param late_zi: 晚子时的流派，见模块文档第三条。
 
     >>> build_chart(datetime(1996, 4, 18, 13, 46), longitude=114.93).bazi

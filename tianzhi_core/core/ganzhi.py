@@ -222,7 +222,7 @@ def siling_table() -> dict[str, list[dict]]:
     出处为通行的司令分日表，用于按出生日距节气的天数决定该月藏干的权重，
     比固定的本中余三档更贴近古法。
     """
-    with resources.files("shushu.data").joinpath("siling.json").open(encoding="utf-8") as f:
+    with resources.files("tianzhi_core.data").joinpath("siling.json").open(encoding="utf-8") as f:
         return json.load(f)
 
 

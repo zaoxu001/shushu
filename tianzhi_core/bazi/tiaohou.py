@@ -8,7 +8,7 @@
 - 《金不换大运》同样 120 格，除喜神外明确给出忌神天干，并附大运地支的顺逆，
   补上了调候表不说的「不该碰什么」。
 
-数据见 shushu/data/tiaohou.json 与 shushu/data/jinbuhuan.json，原书为公版古籍。
+数据见 tianzhi_core/data/tiaohou.json 与 tianzhi_core/data/jinbuhuan.json，原书为公版古籍。
 """
 from __future__ import annotations
 
@@ -29,13 +29,13 @@ __all__ = [
 
 @lru_cache(maxsize=1)
 def _tiaohou_table() -> dict[str, dict[str, list[str]]]:
-    with resources.files("shushu.data").joinpath("tiaohou.json").open(encoding="utf-8") as f:
+    with resources.files("tianzhi_core.data").joinpath("tiaohou.json").open(encoding="utf-8") as f:
         return json.load(f)
 
 
 @lru_cache(maxsize=1)
 def _jinbuhuan_table() -> dict[str, dict[str, dict]]:
-    with resources.files("shushu.data").joinpath("jinbuhuan.json").open(encoding="utf-8") as f:
+    with resources.files("tianzhi_core.data").joinpath("jinbuhuan.json").open(encoding="utf-8") as f:
         return json.load(f)
 
 

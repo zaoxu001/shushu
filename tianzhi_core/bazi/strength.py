@@ -21,7 +21,7 @@
     藏干展开已经按本/中/余分级计过这个根，再加一次等于同一个字算两遍。
     根的有无另行以布尔闸 Strength.has_root 表达，不混进连续分。
 (c) 原实现对所有地支本气一刀切。子卯酉只藏一个字、气最纯，本包给纯气支加权
-    PURE_ZHI_COEF，见 shushu.core.ganzhi.PURE_ZHI 的注释。
+    PURE_ZHI_COEF，见 tianzhi_core.core.ganzhi.PURE_ZHI 的注释。
 
 另：原实现的「杂气湿燥土 ×0.65」同样只作用于耗身一侧，与 (a) 是同一类不对称，
 本包不予实现。
@@ -40,7 +40,7 @@ __all__ = [
     "climate_index", "ten_god", "validate_quad",
 ]
 
-#: 四柱输入：键为 year/month/day/hour，值为 (天干, 地支)。与 shushu.bazi.interact 同型。
+#: 四柱输入：键为 year/month/day/hour，值为 (天干, 地支)。与 tianzhi_core.bazi.interact 同型。
 Quad = Mapping[str, tuple[str, str]]
 
 POSITIONS: tuple[str, ...] = ("year", "month", "day", "hour")
@@ -60,7 +60,7 @@ ZHI_BASE: float = 12.0
 #: 具体数值为本包取值，可调。
 ROOT_COEF: dict[str, float] = {"本": 1.0, "中": 0.5, "余": 0.3}
 
-#: 纯气支（子卯酉）本气加权。出处见 shushu.core.ganzhi.PURE_ZHI：
+#: 纯气支（子卯酉）本气加权。出处见 tianzhi_core.core.ganzhi.PURE_ZHI：
 #: 纯气支按 8 计、杂气支本气按 5 计，8/5 = 1.6。本包取此比值，可调。
 PURE_ZHI_COEF: float = 1.6
 
@@ -69,7 +69,7 @@ PURE_ZHI_COEF: float = 1.6
 MONTH_WEIGHT: float = 2.0
 
 #: 人元司令加权：月令藏干中当令的那一个另加权。分日之说出自人元司令分日表
-#: （见 shushu.data.siling）。倍数为本包取值，可调。
+#: （见 tianzhi_core.data.siling）。倍数为本包取值，可调。
 #:
 #: 取 1.1 而不是更大，是因为司令只该**细化**月令藏干的粗细，不该把结论推翻：
 #: 月令藏干本来就已吃了 MONTH_WEIGHT=2.0，再乘一个大倍数，足以把 ratio 推过分档线。
@@ -165,7 +165,7 @@ def components(quad: Quad, *, month_siling: str | None = None,
                include_day_gan: bool = True) -> list[Component]:
     """把四柱拆成带权重的成分表。旺衰、五行分布、十神力量都建在这上面。
 
-    month_siling 为月令司令的藏干（见 shushu.core.ganzhi.siling_gan）；
+    month_siling 为月令司令的藏干（见 tianzhi_core.core.ganzhi.siling_gan）；
     不传则只按本中余三档，不另加司令权。
     """
     validate_quad(quad)

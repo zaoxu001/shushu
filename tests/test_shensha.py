@@ -10,8 +10,8 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import pytest
 
 from conftest_shusu_yunshu import BASE_QUAD
-from shushu.bazi import score, shensha
-from shushu.core import ganzhi
+from tianzhi_core.bazi import score, shensha
+from tianzhi_core.core import ganzhi
 
 
 def _names(items) -> set[str]:

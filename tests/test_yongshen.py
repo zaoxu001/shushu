@@ -4,9 +4,9 @@ from __future__ import annotations
 import pytest
 from conftest import CASE_WU_YIN, CASE_XIN_ZI, CASE_YI_CHEN, quad, random_quads
 
-from shushu.bazi import tiaohou as T
-from shushu.bazi import yongshen as Y
-from shushu.core import wuxing
+from tianzhi_core.bazi import tiaohou as T
+from tianzhi_core.bazi import yongshen as Y
+from tianzhi_core.core import wuxing
 
 
 # ── 调候两张表 ──────────────────────────────────────────────────
@@ -113,7 +113,7 @@ def test_properties_over_500_charts():
 
 
 def test_balanced_charts_always_have_a_taboo():
-    from shushu.bazi import strength as S
+    from tianzhi_core.bazi import strength as S
 
     seen = 0
     for q in random_quads(500):
@@ -133,7 +133,7 @@ def test_select_is_deterministic():
 
 # ── 月令司令：传与不传两条路径 ──────────────────────────────────
 def _siling_candidates(q):
-    from shushu.core import ganzhi
+    from tianzhi_core.core import ganzhi
     return [hg for hg, _ in ganzhi.HIDDEN[q["month"][1]]]
 
 
@@ -170,8 +170,8 @@ def test_yi_chen_with_siling_still_takes_earth_not_metal():
 def test_tongguan_requires_a_real_standoff():
     """通关三道门槛：份额、势均力敌，且病不在相战两行之内、通关神不生病。"""
     assert Y.TONGGUAN_BALANCE_MAX <= 1.10
-    from shushu.bazi import strength as S
-    from shushu.core import wuxing
+    from tianzhi_core.bazi import strength as S
+    from tianzhi_core.core import wuxing
 
     for q in random_quads(400):
         ys = Y.select(q)
@@ -188,7 +188,7 @@ def test_month_siling_does_not_reverse_direction_on_500_charts():
     分档是硬边界，恰好压线的盘换档属预期；这里守的是「不要大面积翻转」。
     收紧通关与压低 SILING_BOOST 之前是 4.7%，之后 0.95%，阈值取 2% 作回归护栏。
     """
-    from shushu.core import ganzhi, wuxing
+    from tianzhi_core.core import ganzhi, wuxing
 
     total = clash = 0
     for q in random_quads(500):

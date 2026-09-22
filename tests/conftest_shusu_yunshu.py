@@ -4,7 +4,7 @@
 """
 from __future__ import annotations
 
-from shushu.core import ganzhi
+from tianzhi_core.core import ganzhi
 
 #: 基准盘：丙子 壬辰 乙酉 癸未
 BASE_QUAD: dict[str, tuple[str, str]] = {
@@ -28,7 +28,7 @@ def sample_cycles(quad: dict[str, tuple[str, str]], *, birth_year: int = 1996,
 
     只用于测试，不代表真实起运——真正的排运由 chart 层负责。
     """
-    from shushu.bazi.score import Cycle
+    from tianzhi_core.bazi.score import Cycle
 
     month_gz = "".join(quad["month"])
     year_gz = "".join(quad["year"])

@@ -8,7 +8,7 @@ ROOT_COEF 中气 0.5、余气 0.3，凡是带未的盘五行分量都会偏。�
 不适用这条约束，故不纳入。另有一处已知的来源差异：申的司令表首位作己，而藏干表作戊，
 二者同属土，五行结论不受影响，此处不作断言。
 """
-from shushu.core import ganzhi as G
+from tianzhi_core.core import ganzhi as G
 
 MU_KU = ("丑", "辰", "未", "戌")
 LEVEL_BY_DAYS = {18: "本", 9: "中", 3: "余"}

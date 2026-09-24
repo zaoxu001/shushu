@@ -130,6 +130,12 @@ catalog.describe('bazi.yongshen.select')    # 单个方法的完整说明
 
 **关于 AI 生成的内容。** 欢迎用 AI 辅助整理与表达，但禁止 AI 灌水。
 
+## 相关项目
+
+**[天秩](https://tianzhi.live)** · 本包的在线形态：排盘、研习与典籍。
+
+**[tianzhi-classics](https://github.com/zaoxu001/tianzhi-classics)** · 算法所依据的典籍原文。只收公有领域的版本，现代点校本与白话译注不在其列。算法输出里的出处标签（如「穷通宝鉴·辛日午月」「子平真诠·论用神」）逐条指回这里的原文，让结论可以回溯查证。
+
 ## 许可
 
 MIT

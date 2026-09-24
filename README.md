@@ -67,6 +67,21 @@ print(r.score, r.breakdown)                # 58.8 {'base': 50.0, 'year_gan|丙(�
 
 排完盘 `c.quad` 直接往下传，量化、取用、引动、双盘都收这个结构。返回的是结构化数据与术语标签。
 
+## 有哪些方法
+
+不必翻文档，运行时问它自己：
+
+```python
+from tianzhi_core import catalog
+
+print(catalog.as_text())                    # 全部方法：怎么调、作用、返回哪些字段
+catalog.tools('bazi')                       # 只看某一层
+catalog.describe('bazi.yongshen.select')    # 单个方法的完整说明
+```
+
+清单从代码现读——作用取自 docstring 首行，签名取自真实签名，返回的字段取自 dataclass。
+**文档与实现不会各说各话**，因为只有一处来源。
+
 ## 八字模块
 
 | 层 | 模块 | 提供 |

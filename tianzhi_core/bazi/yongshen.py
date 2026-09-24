@@ -139,7 +139,8 @@ def _tier_geju(ctx: _Ctx) -> _Pick | None:
             yong = max(foe, key=lambda k: foe[k])
             rel = wuxing.relation(yong, ctx.day_wx)
             return _Pick(yong, f"从格·从{rel}",
-                         (f"同党占比{b.ratio:.2f}", "日主无强根", f"从其旺神·{rel}"))
+                         (f"同党占比{b.ratio:.2f}", "日主无强根", f"从其旺神·{rel}",
+                          "滴天髓·从象"))
     if b.ratio >= FOLLOW_STRONG_RATIO and b.has_root:
         return _Pick(ctx.day_wx, "专旺·顺其势",
                      (f"同党占比{b.ratio:.2f}", "日主有强根", "顺势不逆"))
@@ -169,8 +170,9 @@ def _tier_fuyi(ctx: _Ctx) -> _Pick | None:
         why = "劫重·官煞制之" if jie_leads else "财制印比"
         ordered = _climate_first(ctx, cands)
         tag = ("调候合",) if ctx.need and ordered[0] in ctx.need.kept else ()
+        src = ("子平真诠·论用神",) if jie_leads else ()
         return _Pick(ordered[0], "扶抑·身旺抑",
-                     (f"同党占比{b.ratio:.2f}", why) + tag)
+                     (f"同党占比{b.ratio:.2f}", why) + tag + src)
     return None
 
 
@@ -212,7 +214,8 @@ def _tier_tongguan(ctx: _Ctx) -> _Pick | None:
     if best is None:
         return None
     _, a, b, mid = best
-    return _Pick(mid, "通关", (f"{a}{b}相战", f"通关·{mid}", f"非病·{bing}不与"))
+    return _Pick(mid, "通关",
+                 (f"{a}{b}相战", f"通关·{mid}", f"非病·{bing}不与", "滴天髓·通关"))
 
 
 def _bing_of(ctx: _Ctx) -> str | None:
@@ -243,15 +246,20 @@ def _tier_bingyao(ctx: _Ctx) -> _Pick | None:
     if bing is None:
         return None
     yao = wuxing.KE_ME[bing]
-    return _Pick(yao, "病药", (f"病·{bing}最旺", f"药·{yao}制之"))
+    return _Pick(yao, "病药",
+                 (f"病·{bing}最旺", f"药·{yao}制之", "神峰通考·病药说"))
 
 
 def _tier_tiaohou(ctx: _Ctx) -> _Pick | None:
-    """调候：《穷通宝鉴》查表，已按盘面剔除过（见 tiaohou.climate_need）。"""
+    """调候：《穷通宝鉴》查表，已按盘面剔除过（见 tiaohou.climate_need）。
+
+    这一档不自己给出处。调候那一条每盘都会透出，不论最后取的是哪一档，出处
+    就跟着它一起走（见 select），挂在这里只有调候被选中的那几盘才带得出来。
+    """
     if ctx.need is None or not ctx.need.kept:
         return None
     return _Pick(ctx.need.kept[0], "调候",
-                 (f"穷通宝鉴·{''.join(ctx.need.gods.gans)}",
+                 (f"取{''.join(ctx.need.gods.gans)}",
                   f"剔除·{''.join(ctx.need.dropped) or '无'}"))
 
 
@@ -307,6 +315,9 @@ def select(quad: Quad, *, month_siling: str | None = None,
     ev.extend(pick.evidence)
     if ctx.need is not None:
         ev.append(f"调候·{''.join(ctx.need.kept)}")
+        # 出处挂在这里而不是调候那一档里：调候这条每盘都出，不论最后取的是
+        # 哪一档，出处也就该每盘都有；挂在档里只有调候被选中那几盘才带得出来。
+        ev.append(f"穷通宝鉴·{day_gan}日{quad['month'][1]}月")
     adv = _th.adverse_gods(day_gan, quad["month"][1])
     if adv is not None:
         ev.append(f"金不换喜·{''.join(adv.xi_gans)}")

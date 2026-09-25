@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "zaoxu001" }]
-keywords = ["bazi", "four-pillars", "ganzhi", "jieqi", "metaphysics"]
+keywords = ["bazi", "four-pillars", "liuren", "ganzhi", "jieqi", "metaphysics"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",

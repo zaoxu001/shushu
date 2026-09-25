@@ -336,8 +336,10 @@ def _fuyin_chuan(classes: list[dict], day_gan: str) -> dict:
         chu = picked[0]
     else:
         chu = gan_up if yang else zhi_up
-    # 卷五：伏吟无克，刚日自任、柔日自信；发用自刑者传行杜塞，为杜传
-    ge = "杜传" if ZHI_XING[chu] == chu else ("伏吟" if picked else ("自任" if yang else "自信"))
+    # 卷五：伏吟无克，刚日自任、柔日自信。传行杜塞者为杜传：发用自刑，或初传所刑之神又刑回初传
+    # （「丁卯己卯辛卯日卯子午……子卯兩刑不復再傳」，书中列在杜传之下）
+    stuck = ZHI_XING[chu] == chu or ZHI_XING[ZHI_XING[chu]] == chu
+    ge = "杜传" if stuck else ("伏吟" if picked else ("自任" if yang else "自信"))
     if ZHI_XING[chu] != chu:
         zhong = ZHI_XING[chu]
     else:

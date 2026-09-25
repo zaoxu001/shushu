@@ -270,8 +270,9 @@ def _shehai_depth(upper: str, gong: str, upper_is_victim: bool) -> int:
     return depth
 
 
-def _select_by_ke(classes: list[dict], day_gan: str) -> tuple[str, str] | None:
-    """贼克 → 比用 → 涉害 的发用选择。返回 (初传, 法名)；四课无上下克返回 None。
+def _select_by_ke(classes: list[dict], day_gan: str) -> tuple[str, str, str] | None:
+    """贼克 → 比用 → 涉害 的发用选择。返回 (初传, 法名, 格)；四课无上下克返回 None。
+    格照《六壬大全》课经的名目：元首、重审、知一、涉害、见机、察微、缀瑕。
 
     古法口径：
       - "贼" = 下克上（重审课），"克" = 上克下（元首课），有贼先取贼。
@@ -295,13 +296,13 @@ def _select_by_ke(classes: list[dict], day_gan: str) -> tuple[str, str] | None:
     if not uniq:
         return None
     if len(uniq) == 1:
-        return uniq[0]["up"], "贼克"
+        return uniq[0]["up"], "贼克", ("重审" if zei else "元首")
 
     # 比用
     day_yang = _is_yang_day(day_gan)
     same = [c for c in uniq if (zhi_idx(c["up"]) % 2 == 0) == day_yang]
     if len(same) == 1:
-        return same[0]["up"], "比用"
+        return same[0]["up"], "比用", "知一"
 
     # 涉害：贼候选数受克于地盘，克候选数所克之地盘
     pool = same or uniq
@@ -310,19 +311,19 @@ def _select_by_ke(classes: list[dict], day_gan: str) -> tuple[str, str] | None:
     max_d = max(d for d, _ in depths)
     tied = [c for d, c in depths if d == max_d]
     if len(tied) == 1:
-        return tied[0]["up"], "涉害"
+        return tied[0]["up"], "涉害", "涉害"
     # 见机：深浅相等取临四孟者；孟上不止一个则直接复等（缀瑕例：俱孟相等不取仲）
     meng = [c for c in tied if _course_gong(c) in MENG_ZHI]
     if len(meng) == 1:
-        return meng[0]["up"], "涉害"
+        return meng[0]["up"], "涉害", "见机"
     if not meng:
         # 察微：无孟上者取临四仲者
         zhong = [c for c in tied if _course_gong(c) in ZHONG_ZHI]
         if len(zhong) == 1:
-            return zhong[0]["up"], "涉害"
+            return zhong[0]["up"], "涉害", "察微"
     # 缀瑕（复等）：刚日用干上神，柔日用支上神
     chu = classes[0]["up"] if day_yang else classes[2]["up"]
-    return chu, "涉害"
+    return chu, "涉害", "缀瑕"
 
 
 def _fuyin_chuan(classes: list[dict], day_gan: str) -> dict:
@@ -335,6 +336,8 @@ def _fuyin_chuan(classes: list[dict], day_gan: str) -> dict:
         chu = picked[0]
     else:
         chu = gan_up if yang else zhi_up
+    # 卷五：伏吟无克，刚日自任、柔日自信；发用自刑者传行杜塞，为杜传
+    ge = "杜传" if ZHI_XING[chu] == chu else ("伏吟" if picked else ("自任" if yang else "自信"))
     if ZHI_XING[chu] != chu:
         zhong = ZHI_XING[chu]
     else:
@@ -346,7 +349,7 @@ def _fuyin_chuan(classes: list[dict], day_gan: str) -> dict:
         mo = ZHI_XING[zhong]
     else:
         mo = add_zhi(zhong, 6)
-    return {"method": "伏吟", "chu": chu, "zhong": zhong, "mo": mo}
+    return {"method": "伏吟", "ge": ge, "chu": chu, "zhong": zhong, "mo": mo}
 
 
 def get_three_chuan(classes: list[dict], tdp: dict, day_gan: str, day_zhi: str) -> dict:
@@ -367,16 +370,16 @@ def get_three_chuan(classes: list[dict], tdp: dict, day_gan: str, day_zhi: str) 
         picked = _select_by_ke(classes, day_gan)
         if picked:
             chu = picked[0]
-            return {"method": "返吟", "chu": chu,
+            return {"method": "返吟", "ge": "无依", "chu": chu,
                     "zhong": tdp.get(chu, chu), "mo": chu}
-        # 无克（丁丑己丑辛丑丁未己未辛未六日）：初传取日支驿马，中支上神，末干上神
-        return {"method": "返吟", "chu": day_ma(day_zhi), "zhong": zhi_up, "mo": gan_up}
+        # 无克（丁丑己丑辛丑丁未己未辛未六日）：初传取日支驿马，中支上神，末干上神。卷五名井栏射
+        return {"method": "返吟", "ge": "井栏射", "chu": day_ma(day_zhi), "zhong": zhi_up, "mo": gan_up}
 
     # ---------- 1. 贼克 / 比用 / 涉害 ----------
     picked = _select_by_ke(classes, day_gan)
     if picked:
-        chu, method = picked
-        return _finish_chuan(chu, tdp, method, classes, day_gan, day_zhi)
+        chu, method, ge = picked
+        return {**_finish_chuan(chu, tdp, method, classes, day_gan, day_zhi), "ge": ge}
 
     # 四课备数：两课=八专日，三课=别责候选，四课=昴星候选
     distinct = {(c["up"], _course_gong(c)) for c in classes}
@@ -390,7 +393,7 @@ def get_three_chuan(classes: list[dict], tdp: dict, day_gan: str, day_zhi: str) 
     #   中传、末传均为干上神
     if len(distinct) == 2:
         chu = add_zhi(gan_up, 2) if yang else add_zhi(classes[3]["up"], -2)
-        return {"method": "八专", "chu": chu, "zhong": gan_up, "mo": gan_up}
+        return {"method": "八专", "ge": "八专", "chu": chu, "zhong": gan_up, "mo": gan_up}
 
     # ---------- 3. 遥克法 ----------
     # 四课上下不克，看四上神与日干遥克：先取上神克日（蒿矢），
@@ -405,7 +408,9 @@ def get_three_chuan(classes: list[dict], tdp: dict, day_gan: str, day_zhi: str) 
             if len(cands) > 1:
                 same = [z for z in cands if (zhi_idx(z) % 2 == 0) == yang]
                 cands = same or cands
-            return _finish_chuan(cands[0], tdp, "遥克", classes, day_gan, day_zhi)
+            # 卷五：上神克日为蒿矢，日克上神为弹射
+            return {**_finish_chuan(cands[0], tdp, "遥克", classes, day_gan, day_zhi),
+                    "ge": "蒿矢" if rel_key == "克" else "弹射"}
 
     # ---------- 4. 别责法 ----------
     # 四课不全三课备，无遥无克：刚日取干合之干寄宫上神为初传，
@@ -415,16 +420,16 @@ def get_three_chuan(classes: list[dict], tdp: dict, day_gan: str, day_zhi: str) 
             chu = tdp.get(GAN_JIGONG[GAN_HE[day_gan]], "")
         else:
             chu = SAN_HE_NEXT[day_zhi]
-        return {"method": "别责", "chu": chu, "zhong": gan_up, "mo": gan_up}
+        return {"method": "别责", "ge": "别责", "chu": chu, "zhong": gan_up, "mo": gan_up}
 
     # ---------- 5. 昴星法 ----------
     # 四课全备无克无遥：刚日仰取地盘酉宫上神为初传，中传支上神，末传干上神（虎视）；
     # 柔日俯取天盘酉所临地盘之辰为初传，中传干上神，末传支上神（冬蛇掩目）。
     if yang:
         chu = tdp.get("酉", "酉")
-        return {"method": "昴星", "chu": chu, "zhong": zhi_up, "mo": gan_up}
+        return {"method": "昴星", "ge": "虎视", "chu": chu, "zhong": zhi_up, "mo": gan_up}
     chu = next((e for e in ZHI if tdp.get(e) == "酉"), "酉")
-    return {"method": "昴星", "chu": chu, "zhong": gan_up, "mo": zhi_up}
+    return {"method": "昴星", "ge": "冬蛇掩目", "chu": chu, "zhong": gan_up, "mo": zhi_up}
 
 
 def _finish_chuan(chu: str, tdp: dict, method: str, classes: list, day_gan: str, day_zhi: str) -> dict:
@@ -702,6 +707,7 @@ def qike(year: int, month: int, day: int, hour: int, minute: int,
 
     chuan_full = {
         "method": chuan["method"],
+        "ge": chuan.get("ge", ""),
         "chu": annotate(chuan["chu"]),
         "zhong": annotate(chuan["zhong"]),
         "mo": annotate(chuan["mo"]),
@@ -734,7 +740,7 @@ def qike(year: int, month: int, day: int, hour: int, minute: int,
         ],
     }
 
-    return {
+    result = {
         "input": {
             "year": year, "month": month, "day": day,
             "hour": hour, "minute": minute,
@@ -763,6 +769,10 @@ def qike(year: int, month: int, day: int, hour: int, minute: int,
         "three_chuan": chuan_full,
         "plate": plate,
     }
+    # 课体：照《六壬大全》课经逐条判定（见 keti.py）。放在这里而非模块顶部，免得循环引用
+    from .keti import detect_ke
+    result["keti"] = detect_ke(result)
+    return result
 
 
 if __name__ == "__main__":

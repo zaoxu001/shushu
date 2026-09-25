@@ -773,7 +773,9 @@ def qike(year: int, month: int, day: int, hour: int, minute: int,
     }
     # 课体：照《六壬大全》课经逐条判定（见 keti.py）。放在这里而非模块顶部，免得循环引用
     from .keti import detect_ke
+    from .bifa import detect_ke as bifa_ke
     result["keti"] = detect_ke(result)
+    result["bifa"] = bifa_ke(result)  # 毕法赋中本课命中的句子
     return result
 
 

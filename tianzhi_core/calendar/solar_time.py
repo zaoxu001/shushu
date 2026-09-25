@@ -29,6 +29,8 @@ __all__ = [
     "longitude_offset",
     "correction_minutes",
     "true_solar_time",
+    "sunrise_sunset",
+    "is_daytime",
 ]
 
 #: 东八区的标准经度。北京时间以东经 120 度为准，不是北京城的 116.4 度。
@@ -92,3 +94,52 @@ def true_solar_time(
     return dt + timedelta(
         minutes=correction_minutes(dt, longitude, standard_longitude=standard_longitude)
     )
+
+
+def _declination(dt: datetime) -> float:
+    """太阳赤纬（弧度），Spencer（1971）近似式，误差约 0.03 度。"""
+    g = 2.0 * math.pi * (dt.timetuple().tm_yday - 1) / 365.0
+    return (0.006918 - 0.399912 * math.cos(g) + 0.070257 * math.sin(g)
+            - 0.006758 * math.cos(2 * g) + 0.000907 * math.sin(2 * g)
+            - 0.002697 * math.cos(3 * g) + 0.00148 * math.sin(3 * g))
+
+
+def sunrise_sunset(
+    dt: datetime,
+    latitude: float,
+    longitude: float,
+    *,
+    standard_longitude: float = CHINA_STANDARD_LONGITUDE,
+) -> tuple[datetime, datetime] | None:
+    """当天日出、日落的钟表时刻（与 dt 同一时区）。极昼极夜返回 None。
+
+    日出日落以太阳上缘触及地平线为准，计入大气折射，取太阳中心在地平线下 0.833 度。
+    真太阳时正午是 12:00，换回钟表时间要减去经度时差与均时差。精度在一两分钟之内，
+    用来分昼夜足够。
+
+    >>> r, s = sunrise_sunset(datetime(2026, 6, 21), 39.9, 116.4)
+    >>> r.strftime("%H:%M"), s.strftime("%H:%M")
+    ('04:45', '19:46')
+    """
+    phi, delta = math.radians(latitude), _declination(dt)
+    cos_h = (math.sin(math.radians(-0.833)) - math.sin(phi) * math.sin(delta)) / (math.cos(phi) * math.cos(delta))
+    if cos_h <= -1 or cos_h >= 1:
+        return None
+    half_day = math.degrees(math.acos(cos_h)) * 4.0  # 分钟
+    day = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    noon = day + timedelta(minutes=12 * 60 - correction_minutes(day, longitude, standard_longitude=standard_longitude))
+    return noon - timedelta(minutes=half_day), noon + timedelta(minutes=half_day)
+
+
+def is_daytime(
+    dt: datetime,
+    latitude: float,
+    longitude: float,
+    *,
+    standard_longitude: float = CHINA_STANDARD_LONGITUDE,
+) -> bool:
+    """此刻太阳在地平线上否。极昼返回 True，极夜返回 False。"""
+    rs = sunrise_sunset(dt, latitude, longitude, standard_longitude=standard_longitude)
+    if rs is None:
+        return math.sin(math.radians(latitude)) * _declination(dt) > 0
+    return rs[0] <= dt < rs[1]

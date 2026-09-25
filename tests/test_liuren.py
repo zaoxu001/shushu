@@ -68,3 +68,20 @@ def test_palace_tian_jiang_follows_sky_branch():
         t = r["three_chuan"][key]
         earth = next(z for z, p in palaces.items() if p["sky"] == t["zhi"])
         assert palaces[earth]["tian_jiang"] == t["tian_jiang"], key
+
+
+def test_day_night_by_sunrise_sunset():
+    """正时起课的昼夜贵人按当地日出日落分，不按卯酉定界。"""
+    from tianzhi_core.calendar.solar_time import is_daytime
+    from datetime import datetime
+    # 北京夏至：寅时末（04:50）日已出，是昼；冬至：卯时初（06:30）日未出，仍是夜
+    assert is_daytime(datetime(2026, 6, 21, 4, 50), 39.9, 116.4)
+    assert not is_daytime(datetime(2026, 12, 21, 6, 30), 39.9, 116.4)
+    # 春分酉时初（17:30）日未落，是昼；秋分后八月酉时末（18:50）日已落，是夜
+    assert is_daytime(datetime(2026, 3, 20, 17, 30), 39.9, 116.4)
+    assert not is_daytime(datetime(2026, 9, 25, 18, 50), 39.9, 116.4)
+    # 起课：夏至寅时末用昼贵
+    r = L.qike(2026, 6, 21, 4, 50)
+    assert r["tian_jiang_is_day_time"] is True
+    # 活时报数没有真实时刻，仍按占时支：寅属夜
+    assert L.qike(2026, 6, 21, 4, 50, user_number=3)["tian_jiang_is_day_time"] is False

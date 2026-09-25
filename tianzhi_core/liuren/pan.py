@@ -11,6 +11,8 @@
 from datetime import datetime
 
 from lunar_python import Solar
+
+from ..calendar.solar_time import is_daytime
 from lunar_python.util import LunarUtil
 
 # ============================================================
@@ -612,9 +614,14 @@ def get_shen_sha(day_gan: str, day_zhi: str, month_zhi: str) -> list[dict]:
 # ============================================================
 # 主函数：起一课
 # ============================================================
+# 占事所在地的默认经纬度：北京。调用方知道实际地点就传进来。
+DEFAULT_LATITUDE, DEFAULT_LONGITUDE = 39.9, 116.4
+
+
 def qike(year: int, month: int, day: int, hour: int, minute: int,
         user_number: int | None = None,
-        gender: int = 0, benming: str = "") -> dict:
+        gender: int = 0, benming: str = "",
+        latitude: float = DEFAULT_LATITUDE, longitude: float = DEFAULT_LONGITUDE) -> dict:
     """
     起一卦六壬课
     user_number: 用户报的活时数字，任意正整数按十二地支循环。若 None，则用系统时辰（正时）
@@ -641,10 +648,16 @@ def qike(year: int, month: int, day: int, hour: int, minute: int,
     # 月将
     yue_jiang = get_yue_jiang(year, month, day, hour)
 
-    # 昼夜：真实钟点用于展示；天将昼夜按占时支判定，和活时报数口径一致。
+    # 昼夜贵人：正时起课按占时那一刻当地日出日落分——酉时日未落仍是昼，卯时日未出仍是夜。
+    # 《六壬大全》课经诸例用贵，卯至申皆昼、戌至丑皆夜，而寅、酉两时随季节而变（六月寅时用昼贵，
+    # 二月、七月酉时用昼贵）；《大六壬指南》占验亦有「虽寅时，用昼贵」、八月酉时用夜贵之例。
+    # 固定以卯酉分界（卯至申为昼）只是它的近似。活时报数没有真实时刻，仍按占时支判定。
     day_time = is_day_time(hour)
     tian_jiang_hour_zhi = zhan_shi if user_number is not None else hour_ganzhi[1]
-    tian_jiang_day_time = get_tian_jiang_day_flag(tian_jiang_hour_zhi)
+    if user_number is None:
+        tian_jiang_day_time = is_daytime(datetime(year, month, day, hour, minute), latitude, longitude)
+    else:
+        tian_jiang_day_time = get_tian_jiang_day_flag(tian_jiang_hour_zhi)
 
     # 天地盘
     tdp = build_tian_di_pan(yue_jiang, zhan_shi)

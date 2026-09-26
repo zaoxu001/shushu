@@ -157,10 +157,11 @@ def _common(k: _Ke, p, shi):
     out = []
     good_qi = p["qi"] in ("旺", "相")
     if p["where"] == "局外":
+        # 局外以有气无气定远近难易（「有氣亦逺，無氣難」），旺衰已在其中，不再另计一次
         out.append(_f("类神局外", 0 if good_qi else -1, "事类神", name=p["name"], qi=p["qi"]))
     else:
         out.append(_f("类神入传", 1, "事类神", name=p["name"], where=p["where"]))
-    out.append(_f("类神旺衰", 1 if good_qi else -1, "旺衰", name=p["name"], qi=p["qi"]))
+        out.append(_f("类神旺衰", 1 if good_qi else -1, "旺衰", name=p["name"], qi=p["qi"]))
     if p["void"]:
         out.append(_f("类神空亡", -2, "空亡", name=p["name"]))
     return out

@@ -12,6 +12,8 @@
   往父母宫顺行 → 默认 ``"ming"``；照字面从父母 / 兄弟宫起，传 ``"next"``。
 - ``tongxing``：是否排《全书》未载、后世通行本所补的杂曜与岁前、将前十二神（天官、天福、孤辰寡宿、华盖咸池等）。
   这些出处标「通行排法」，与 iztro 对过。默认排。
+- ``miaowang``：庙旺取哪一卷。卷二命宫一节逐宫说庙旺，卷三「诸星同垣」节首另列一表，两卷十四格出入（见 collation）。
+  默认 ``"juan3"``（明列之表，与通行同）；某卷未载的格由另一卷补。
 - ``sihua_ren``：壬年化科。书：「壬梁紫府武」→ 默认 ``"天府"``；中州派等作左辅化科，传 ``"左辅"``。
 
 纯函数：不读系统时间。输入公历时刻与性别，农历换算用 lunar-python。
@@ -81,6 +83,11 @@ FEILIAN = dict(zip(ZHI, "申酉戌巳午未寅卯辰亥子丑"))
 SUIQIAN = ["岁建", "晦气", "丧门", "贯索", "官符", "小耗", "大耗", "龙德", "白虎", "天德", "吊客", "病符"]
 JIANGQIAN = ["将星", "攀鞍", "岁驿", "息神", "华盖", "劫煞", "灾煞", "天煞", "指背", "咸池", "月煞", "亡神"]
 JIANGQIAN_START = {**dict.fromkeys("寅午戌", "午"), **dict.fromkeys("申子辰", "子"), **dict.fromkeys("巳酉丑", "酉"), **dict.fromkeys("亥卯未", "卯")}
+# 定十二宫星辰落闲：某星在某宫为闲宫
+LUOXIAN = {"紫微": "子辰亥", "贪狼": "寅辰", "天相": "辰戌", "七杀": "辰亥", "天梁": "巳酉", "天机": "巳", "破军": "巳申", "武曲": "申"}
+# 定十二宫弱强：男命财帛官禄福德迁移田宅为强、子女奴仆兄弟父母为弱；女命夫君子息财帛田宅福德为强，余宫皆弱
+QIANG = {0: ("财帛", "官禄", "福德", "迁移", "田宅"), 1: ("夫妻", "子女", "财帛", "田宅", "福德")}
+RUO = {0: ("子女", "交友", "兄弟", "父母")}
 BOSHI = ["博士", "力士", "青龙", "小耗", "将军", "奏书", "飞廉", "喜神", "病符", "大耗", "伏兵", "官府"]
 # 安截路空亡诀：「甲己申酉宫，乙庚午未宫，丙辛辰巳宫，丁壬寅卯宫，戊癸子丑宫」
 JIELU = {"甲": "申酉", "己": "申酉", "乙": "午未", "庚": "午未", "丙": "辰巳", "辛": "辰巳", "丁": "寅卯", "壬": "寅卯", "戊": "子丑", "癸": "子丑"}
@@ -116,7 +123,7 @@ def ziwei_pos(ju: int, day: int) -> str:
 def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "half", "same"] = "next",
                 late_zi: Literal["next", "same"] = "next", kuiyue_bingding: str = "酉",
                 changsheng: Literal["book", "yinyang"] = "book", tongxing: bool = True, daxian_start: Literal["ming", "next"] = "ming",
-                sihua_ren: Literal["天府", "左辅"] = "天府") -> dict:
+                sihua_ren: Literal["天府", "左辅"] = "天府", miaowang: Literal["juan3", "juan2"] = "juan3") -> dict:
     """排一张紫微命盘。gender：0 男、1 女（与八字模块同）。返回十二宫、各宫星曜、四化、五行局、命主身主、大限等，并带出处。"""
     solar = Solar.fromYmdHms(dt.year, dt.month, dt.day, dt.hour, dt.minute, 0)
     lunar = solar.getLunar()
@@ -202,6 +209,14 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
     changsheng_map = {at(CS_START[ju], i if cs_fwd else -i): CHANGSHENG[i] for i in range(12)}
     # 博士十二神：从禄存起，阳男阴女顺、阴男阳女逆
     boshi = {at(lc, i if forward else -i): BOSHI[i] for i in range(12)}
+    # 落闲、强弱宫
+    for z in ZHI:
+        for st in stars[z]:
+            if z in LUOXIAN.get(st["name"], ""): st["xian"] = True; st["xian_src"] = SRC + "定十二宫星辰落闲"
+    def qiangruo(name):
+        if name in QIANG[gender]: return "强"
+        if gender == 1 or name in RUO[0]: return "弱"
+        return None
     # 岁前十二神（生年太岁起岁建顺行）、将前十二神（生年三合局之旺支起将星顺行）：通行排法。
     # 《全书》安丧门白虎吊客官府诀所载四神与岁前同位（丧门太岁前二、吊客后二，各对宫白虎、官府）
     suiqian = {at(y_zhi, i): SUIQIAN[i] for i in range(12)}
@@ -216,25 +231,29 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
     daxian = {at(first, i if forward else -i): (ju + 10 * i, ju + 10 * i + 9) for i in range(12)}
     # 小限：按生年三合起宫，「不论阴阳男俱顺数，不论阴阳女俱逆数」；虚岁一岁起，每年一宫
     xiaoxian = {at(XIAOXIAN[y_zhi], i if male else -i): [i + 1 + 12 * k for k in range(10)] for i in range(12)}
-    # 庙旺利陷：书中未载的格不填
+    # 庙旺利陷：先取所选那一卷，那一卷没写的格用另一卷补；两卷都没写的不填
     mw = _miaowang()
+    order = ["juan3", "juan2"] if miaowang == "juan3" else ["juan2", "juan3"]
     for z in ZHI:
         for st in stars[z]:
-            v = mw["table"].get(st["name"], {}).get(z)
-            if v: st["miao"] = v; st["miao_src"] = mw["src"][st["name"]][z]
+            for k in order:
+                v = mw[k]["table"].get(st["name"], {}).get(z)
+                if v:
+                    src = mw[k]["src"][st["name"]]
+                    st["miao"] = v; st["miao_src"] = ("卷三·" + src) if k == "juan3" else ("卷二·" + src[z]); break
 
     return {
         "input": {"solar": dt.strftime("%Y-%m-%d %H:%M"), "gender": gender,
                   "lunar": {"year": f"{y_gan}{y_zhi}", "y": lunar.getYear(), "month": month, "day": day, "leap": lunar.getMonth() < 0, "hour": ZHI[hour_zi]}},
         "params": {"leap": leap, "late_zi": late_zi, "kuiyue_bingding": kuiyue_bingding, "changsheng": changsheng, "daxian_start": daxian_start,
-                   "sihua_ren": sihua_ren, "tongxing": tongxing},
+                   "sihua_ren": sihua_ren, "tongxing": tongxing, "miaowang": miaowang},
         "ming": ming, "shen": shen, "ju": ju, "ju_name": "水木金土火"[[2, 3, 4, 5, 6].index(ju)] + "二三四五六"[[2, 3, 4, 5, 6].index(ju)] + "局",
         "ming_zhu": MINGZHU[ming], "shen_zhu": SHENZHU[y_zhi], "forward": forward,
         "palaces": [{"zhi": z, "gan": stem[z], "name": palaces[z], "book_name": PALACE_BOOK.get(palaces[z], palaces[z]),
-                     "is_shen": z == shen, "stars": stars[z], "changsheng": changsheng_map[z], "boshi": boshi[z], "suiqian": suiqian[z], "jiangqian": jiangqian[z], "fei": fei(z), "daxian": daxian[z],
+                     "is_shen": z == shen, "qiangruo": qiangruo(palaces[z]), "stars": stars[z], "changsheng": changsheng_map[z], "boshi": boshi[z], "suiqian": suiqian[z], "jiangqian": jiangqian[z], "fei": fei(z), "daxian": daxian[z],
                      "xiaoxian": xiaoxian[z]}
                     for z in ZHI],
-        "src": {"ming": SRC + "安身命例", "ju": SRC + "起五行寅例", "ziwei": SRC + "安身命例", "daxian": SRC + "安大限诀", "xiaoxian": SRC + "安小限诀",
+        "src": {"ming": SRC + "安身命例", "ju": SRC + "起五行寅例", "ziwei": SRC + "安身命例", "daxian": SRC + "安大限诀", "qiangruo": SRC + "定十二宫弱强", "xiaoxian": SRC + "安小限诀",
                 "changsheng": SRC + "安长生十二神", "boshi": SRC + "安十二宫太岁杀禄诀", "miao": SRC + "命宫（庙旺利陷据各星入某宫句读出）",
                 "ming_zhu": SRC + "安命主", "shen_zhu": SRC + "安身主"},
     }

@@ -195,3 +195,56 @@ def test_feihua_self():
     ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)
     for p in ch["palaces"]:
         assert len(p["fei"]) == 4 and all(f["self"] == (f["to"] == p["zhi"]) for f in p["fei"])
+
+
+# ---------------- 断语与运限论断 ----------------
+from tianzhi_core.ziwei import find_duanyu, judge  # noqa: E402
+from tianzhi_core.ziwei.duanyu import _Pan, _ev, rules as duanyu_rules  # noqa: E402
+
+
+def test_duanyu_rules_well_formed():
+    rs = duanyu_rules()
+    assert len({r["id"] for r in rs}) == len(rs)
+    ch = _Pan(build_chart(datetime(1990, 5, 8, 9, 30), 0))
+    for r in rs:
+        assert r["verdict"] in ("吉", "凶", "中") and r["text"] and r["src"].startswith("紫微斗数全书·")
+        assert bool(r.get("skip")) != bool(r.get("cond")), r["id"]
+        if r.get("cond"):
+            _ev(ch, r["cond"])   # 条件写法都认得
+
+
+def test_duanyu_every_rule_can_fire():
+    """每条判定的断语都至少在一张盘上成立；按安星法不可能的组合已在规则表里改为不判"""
+    random.seed(4)
+    fired = set()
+    for _ in range(6000):
+        ch = build_chart(datetime(random.randint(1930, 2030), random.randint(1, 12), random.randint(1, 28), random.randint(0, 23), 30), random.randint(0, 1))
+        fired |= {x["id"] for x in find_duanyu(ch)}
+    never = [r["id"] for r in duanyu_rules() if r.get("cond") and r["id"] not in fired]
+    assert len(never) <= 3, never   # 极罕见的组合（如天梁文昌同守命俱庙旺）允许抽不到
+
+
+def test_duanyu_examples():
+    # 骨髓赋「日照雷门富贵荣华」：太阳守命在卯
+    for d in range(1, 29):
+        ch = build_chart(datetime(1984, 3, d, 6, 30), 0)
+        sun = next(p["zhi"] for p in ch["palaces"] for s in p["stars"] if s["name"] == "太阳")
+        ids = {x["id"] for x in find_duanyu(ch)}
+        assert ("gs-37-a" in ids) == (sun == ch["ming"] == "卯")
+
+
+def test_xianyun_judge():
+    ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)
+    for y in (2024, 2025, 2026):
+        out = judge(ch, horoscope(ch, datetime(y, 6, 1, 12)))
+        assert out and all(x["src"].startswith("紫微斗数全书·卷三·") and x["verdict"] in ("吉", "凶", "中") for x in out)
+    # 天伤天使夹：只在限行迁移宫时出现（天伤在交友、天使在疾厄）
+    random.seed(3)
+    for _ in range(300):
+        c = build_chart(datetime(random.randint(1950, 2005), random.randint(1, 12), random.randint(1, 28), 12), random.randint(0, 1))
+        h = horoscope(c, datetime(2030, 3, 3, 12))
+        qy = next(p["zhi"] for p in c["palaces"] if p["name"] == "迁移")
+        for x in judge(c, h):
+            if x["key"] == "伤使夹":
+                L = next(l for l in h["layers"] if l["label"] == x["layer"])
+                assert L["ming"] == qy

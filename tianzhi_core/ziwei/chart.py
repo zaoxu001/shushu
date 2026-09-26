@@ -104,7 +104,7 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
                 late_zi: Literal["next", "same"] = "next", kuiyue_bingding: str = "酉",
                 changsheng: Literal["book", "yinyang"] = "book", daxian_start: Literal["ming", "next"] = "ming",
                 sihua_ren: Literal["天府", "左辅"] = "天府") -> dict:
-    """排一张紫微命盘。gender：1 男、0 女。返回十二宫、各宫星曜、四化、五行局、命主身主、大限等，并带出处。"""
+    """排一张紫微命盘。gender：0 男、1 女（与八字模块同）。返回十二宫、各宫星曜、四化、五行局、命主身主、大限等，并带出处。"""
     solar = Solar.fromYmdHms(dt.year, dt.month, dt.day, dt.hour, dt.minute, 0)
     lunar = solar.getLunar()
     hour_zi = Z[lunar.getTimeZhi()]
@@ -118,7 +118,8 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
         month = m + 1 if leap == "next" or (leap == "half" and day > 15) else m
         month = 1 if month == 13 else month
     yang = GAN.index(y_gan) % 2 == 0
-    forward = (yang and gender == 1) or (not yang and gender == 0)   # 阳男阴女
+    male = gender == 0
+    forward = yang == male   # 阳男阴女顺行
 
     # 安身命例：寅上起正月顺至生月；生月宫起子时，逆至生时安命、顺至生时安身
     m_pos = at("寅", month - 1)
@@ -174,7 +175,7 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
             for st in stars[z]:
                 if st["name"] == s: st["hua"] = HUA[i]; st["hua_src"] = SRC + "安禄权科忌四星变化诀"
     # 长生十二神（按五行局起长生）
-    cs_fwd = (gender == 1) if changsheng == "book" else forward
+    cs_fwd = male if changsheng == "book" else forward
     changsheng_map = {at(CS_START[ju], i if cs_fwd else -i): CHANGSHENG[i] for i in range(12)}
     # 博士十二神：从禄存起，阳男阴女顺、阴男阳女逆
     boshi = {at(lc, i if forward else -i): BOSHI[i] for i in range(12)}
@@ -182,7 +183,7 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
     first = ming if daxian_start == "ming" else at(ming, 1 if forward else -1)
     daxian = {at(first, i if forward else -i): (ju + 10 * i, ju + 10 * i + 9) for i in range(12)}
     # 小限：按生年三合起宫，「不论阴阳男俱顺数，不论阴阳女俱逆数」；虚岁一岁起，每年一宫
-    xiaoxian = {at(XIAOXIAN[y_zhi], i if gender == 1 else -i): [i + 1 + 12 * k for k in range(10)] for i in range(12)}
+    xiaoxian = {at(XIAOXIAN[y_zhi], i if male else -i): [i + 1 + 12 * k for k in range(10)] for i in range(12)}
     # 庙旺利陷：书中未载的格不填
     mw = _miaowang()
     for z in ZHI:

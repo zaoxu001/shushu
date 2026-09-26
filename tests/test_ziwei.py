@@ -43,9 +43,9 @@ def test_matches_iztro(c):
 def test_anming_book_example():
     # 安身命例：「假如正月生子时就在寅宫安身命，丑时逆转丑安命，顺去卯安身」
     # 1990-01-27 是庚午年正月初一
-    ch = build_chart(datetime(1990, 1, 27, 0, 30), 1)
+    ch = build_chart(datetime(1990, 1, 27, 0, 30), 0)
     assert ch["input"]["lunar"]["month"] == 1 and (ch["ming"], ch["shen"]) == ("寅", "寅")
-    ch = build_chart(datetime(1990, 1, 27, 2, 30), 1)
+    ch = build_chart(datetime(1990, 1, 27, 2, 30), 0)
     assert (ch["ming"], ch["shen"]) == ("丑", "卯")
 
 
@@ -79,20 +79,20 @@ def test_ziwei_pos_matches_book_tables():
 
 def test_leap_month_follows_book():
     # 「若闰月正月生者要在二月内起安身命」：闰月作下月。1936-05-03 是闰三月十三
-    ch = build_chart(datetime(1936, 5, 3, 2, 30), 1)
+    ch = build_chart(datetime(1936, 5, 3, 2, 30), 0)
     assert ch["input"]["lunar"]["leap"] and ch["input"]["lunar"]["month"] == 4
-    assert build_chart(datetime(1936, 5, 3, 2, 30), 1, leap="same")["input"]["lunar"]["month"] == 3
+    assert build_chart(datetime(1936, 5, 3, 2, 30), 0, leap="same")["input"]["lunar"]["month"] == 3
 
 
 def test_late_zi_crosses_month():
     # 1932-07-03 23:30 是五月三十晚子时；次日六月初一。iztro 此处只把日数加一、月份不进，与本包不同
-    ch = build_chart(datetime(1932, 7, 3, 23, 30), 1)
+    ch = build_chart(datetime(1932, 7, 3, 23, 30), 0)
     assert (ch["input"]["lunar"]["month"], ch["input"]["lunar"]["day"], ch["input"]["lunar"]["hour"]) == (6, 1, "子")
 
 
 def test_ren_year_huake():
     # 「壬梁紫府武」：壬年天府化科
-    ch = build_chart(datetime(2022, 4, 19, 3, 30), 1)
+    ch = build_chart(datetime(2022, 4, 19, 3, 30), 0)
     hua = {s["name"]: s["hua"] for p in ch["palaces"] for s in p["stars"] if s.get("hua")}
     assert hua == {"天梁": "禄", "紫微": "权", "天府": "科", "武曲": "忌"}
 
@@ -103,11 +103,11 @@ def test_changsheng_book_male_forward_female_backward():
         ch = build_chart(datetime(1971, 3, 13, 20, 30), g)
         cs = {p["changsheng"]: p["zhi"] for p in ch["palaces"]}
         step = (ZHI.index(cs["沐浴"]) - ZHI.index(cs["长生"])) % 12
-        assert step == (1 if g == 1 else 11)
+        assert step == (1 if g == 0 else 11)
 
 
 def test_kongwang_xiaoxian():
-    ch = build_chart(datetime(1990, 5, 8, 9, 30), 1)   # 庚午年
+    ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)   # 庚午年
     pos = {}
     for p in ch["palaces"]:
         for s in p["stars"]:
@@ -124,7 +124,7 @@ def test_srcs_exist_in_classics():
     if not path.exists():
         pytest.skip("需要 tianzhi-classics 与本仓库同级")
     keys = {e["key"] for e in json.loads(path.read_text(encoding="utf-8"))["items"]}
-    ch = build_chart(datetime(1990, 5, 8, 9, 30), 1)
+    ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)
     for p in ch["palaces"]:
         for s in p["stars"]:
             assert s["src"].split("·", 1)[1] in keys, s

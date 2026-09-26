@@ -10,6 +10,8 @@
   通行本多作阳男阴女顺、阴男阳女逆，传 ``"yinyang"``。
 - ``daxian_start``：大限起宫。书：「阳男阴女从命前一宫起顺行，是父母宫」，通行读作从命宫起、
   往父母宫顺行 → 默认 ``"ming"``；照字面从父母 / 兄弟宫起，传 ``"next"``。
+- ``tongxing``：是否排《全书》未载、后世通行本所补的杂曜与岁前、将前十二神（天官、天福、孤辰寡宿、华盖咸池等）。
+  这些出处标「通行排法」，与 iztro 对过。默认排。
 - ``sihua_ren``：壬年化科。书：「壬梁紫府武」→ 默认 ``"天府"``；中州派等作左辅化科，传 ``"左辅"``。
 
 纯函数：不读系统时间。输入公历时刻与性别，农历换算用 lunar-python。
@@ -68,6 +70,17 @@ SHENZHU = {"子": "火星", "午": "火星", "丑": "天相", "未": "天相", "
            "辰": "文昌", "戌": "文昌", "巳": "天机", "亥": "天机"}
 CHANGSHENG = ["长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养"]
 CS_START = {2: "申", 3: "亥", 4: "巳", 5: "申", 6: "寅"}  # 水 木 金 土 火
+# ---- 通行排法（《全书》未载安法，后世通行本所补；出处标「通行排法」，可用 tongxing=False 关掉）----
+TX = "通行排法·"
+TIANGUAN = dict(zip(GAN, "未辰巳寅卯酉亥酉戌午"))
+TIANFU_S = dict(zip(GAN, "酉申子亥卯寅午巳午巳"))
+TIANCHU = dict(zip(GAN, "巳午子巳午申寅午酉亥"))
+GUCHEN = {**dict.fromkeys("寅卯辰", "巳丑"), **dict.fromkeys("巳午未", "申辰"), **dict.fromkeys("申酉戌", "亥未"), **dict.fromkeys("亥子丑", "寅戌")}  # 孤辰、寡宿
+HUAGAI_XIANCHI = {**dict.fromkeys("寅午戌", "戌卯"), **dict.fromkeys("申子辰", "辰酉"), **dict.fromkeys("巳酉丑", "丑午"), **dict.fromkeys("亥卯未", "未子")}
+FEILIAN = dict(zip(ZHI, "申酉戌巳午未寅卯辰亥子丑"))
+SUIQIAN = ["岁建", "晦气", "丧门", "贯索", "官符", "小耗", "大耗", "龙德", "白虎", "天德", "吊客", "病符"]
+JIANGQIAN = ["将星", "攀鞍", "岁驿", "息神", "华盖", "劫煞", "灾煞", "天煞", "指背", "咸池", "月煞", "亡神"]
+JIANGQIAN_START = {**dict.fromkeys("寅午戌", "午"), **dict.fromkeys("申子辰", "子"), **dict.fromkeys("巳酉丑", "酉"), **dict.fromkeys("亥卯未", "卯")}
 BOSHI = ["博士", "力士", "青龙", "小耗", "将军", "奏书", "飞廉", "喜神", "病符", "大耗", "伏兵", "官府"]
 # 安截路空亡诀：「甲己申酉宫，乙庚午未宫，丙辛辰巳宫，丁壬寅卯宫，戊癸子丑宫」
 JIELU = {"甲": "申酉", "己": "申酉", "乙": "午未", "庚": "午未", "丙": "辰巳", "辛": "辰巳", "丁": "寅卯", "壬": "寅卯", "戊": "子丑", "癸": "子丑"}
@@ -102,7 +115,7 @@ def ziwei_pos(ju: int, day: int) -> str:
 
 def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "half", "same"] = "next",
                 late_zi: Literal["next", "same"] = "next", kuiyue_bingding: str = "酉",
-                changsheng: Literal["book", "yinyang"] = "book", daxian_start: Literal["ming", "next"] = "ming",
+                changsheng: Literal["book", "yinyang"] = "book", tongxing: bool = True, daxian_start: Literal["ming", "next"] = "ming",
                 sihua_ren: Literal["天府", "左辅"] = "天府") -> dict:
     """排一张紫微命盘。gender：0 男、1 女（与八字模块同）。返回十二宫、各宫星曜、四化、五行局、命主身主、大限等，并带出处。"""
     solar = Solar.fromYmdHms(dt.year, dt.month, dt.day, dt.hour, dt.minute, 0)
@@ -168,6 +181,16 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
     put("台辅", at("午", hour_zi), "minor", "安台辅封诀"); put("封诰", at("寅", hour_zi), "minor", "安封诰诀")
     put("解神", at("戌", -yz), "minor", "安天德月德解神诀")
     put("天伤", at(ming, -7), "minor", "安天伤天使诀"); put("天使", at(ming, -5), "minor", "安天伤天使诀")   # 交友、疾厄
+    # 通行杂曜
+    if tongxing:
+        def tx(name, z, rule): stars[z].append({"name": name, "kind": "minor", "src": TX + rule, "tongxing": True})
+        tx("天官", TIANGUAN[y_gan], "天官"); tx("天福", TIANFU_S[y_gan], "天福"); tx("天厨", TIANCHU[y_gan], "天厨")
+        tx("天巫", "巳申寅亥"[(month - 1) % 4], "天巫"); tx("天月", "戌巳辰寅未卯亥未寅午戌寅"[month - 1], "天月"); tx("阴煞", "寅子戌申午辰"[(month - 1) % 6], "阴煞")
+        tx("孤辰", GUCHEN[y_zhi][0], "孤辰寡宿"); tx("寡宿", GUCHEN[y_zhi][1], "孤辰寡宿")
+        tx("蜚廉", FEILIAN[y_zhi], "蜚廉"); tx("破碎", "巳丑酉"[yz % 3], "破碎")
+        tx("华盖", HUAGAI_XIANCHI[y_zhi][0], "华盖咸池"); tx("咸池", HUAGAI_XIANCHI[y_zhi][1], "华盖咸池")
+        tx("天才", at(ming, yz), "天才天寿"); tx("天寿", at(shen, yz), "天才天寿")
+        tx("恩光", at(at("戌", -hour_zi), day - 2), "恩光天贵"); tx("天贵", at(at("辰", hour_zi), day - 2), "恩光天贵")
     # 生年四化
     sihua = SIHUA[y_gan] if y_gan != "壬" else SIHUA[y_gan][:2] + (sihua_ren,) + SIHUA[y_gan][3:]
     for i, s in enumerate(sihua):
@@ -179,6 +202,15 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
     changsheng_map = {at(CS_START[ju], i if cs_fwd else -i): CHANGSHENG[i] for i in range(12)}
     # 博士十二神：从禄存起，阳男阴女顺、阴男阳女逆
     boshi = {at(lc, i if forward else -i): BOSHI[i] for i in range(12)}
+    # 岁前十二神（生年太岁起岁建顺行）、将前十二神（生年三合局之旺支起将星顺行）：通行排法。
+    # 《全书》安丧门白虎吊客官府诀所载四神与岁前同位（丧门太岁前二、吊客后二，各对宫白虎、官府）
+    suiqian = {at(y_zhi, i): SUIQIAN[i] for i in range(12)}
+    jiangqian = {at(JIANGQIAN_START[y_zhi], i): JIANGQIAN[i] for i in range(12)}
+    # 宫干飞化：各宫以本宫天干起四化，化入哪一宫；化回本宫为自化
+    pos = {st["name"]: z for z in ZHI for st in stars[z]}
+    def fei(z):
+        sh = SIHUA[stem[z]] if stem[z] != "壬" else SIHUA["壬"][:2] + (sihua_ren,) + SIHUA["壬"][3:]
+        return [{"hua": HUA[i], "star": n, "to": pos.get(n), "self": pos.get(n) == z} for i, n in enumerate(sh)]
     # 大限：起岁为局数，每宫十年
     first = ming if daxian_start == "ming" else at(ming, 1 if forward else -1)
     daxian = {at(first, i if forward else -i): (ju + 10 * i, ju + 10 * i + 9) for i in range(12)}
@@ -193,13 +225,13 @@ def build_chart(dt: datetime, gender: Literal[0, 1], *, leap: Literal["next", "h
 
     return {
         "input": {"solar": dt.strftime("%Y-%m-%d %H:%M"), "gender": gender,
-                  "lunar": {"year": f"{y_gan}{y_zhi}", "month": month, "day": day, "leap": lunar.getMonth() < 0, "hour": ZHI[hour_zi]}},
+                  "lunar": {"year": f"{y_gan}{y_zhi}", "y": lunar.getYear(), "month": month, "day": day, "leap": lunar.getMonth() < 0, "hour": ZHI[hour_zi]}},
         "params": {"leap": leap, "late_zi": late_zi, "kuiyue_bingding": kuiyue_bingding, "changsheng": changsheng, "daxian_start": daxian_start,
-                   "sihua_ren": sihua_ren},
+                   "sihua_ren": sihua_ren, "tongxing": tongxing},
         "ming": ming, "shen": shen, "ju": ju, "ju_name": "水木金土火"[[2, 3, 4, 5, 6].index(ju)] + "二三四五六"[[2, 3, 4, 5, 6].index(ju)] + "局",
         "ming_zhu": MINGZHU[ming], "shen_zhu": SHENZHU[y_zhi], "forward": forward,
         "palaces": [{"zhi": z, "gan": stem[z], "name": palaces[z], "book_name": PALACE_BOOK.get(palaces[z], palaces[z]),
-                     "is_shen": z == shen, "stars": stars[z], "changsheng": changsheng_map[z], "boshi": boshi[z], "daxian": daxian[z],
+                     "is_shen": z == shen, "stars": stars[z], "changsheng": changsheng_map[z], "boshi": boshi[z], "suiqian": suiqian[z], "jiangqian": jiangqian[z], "fei": fei(z), "daxian": daxian[z],
                      "xiaoxian": xiaoxian[z]}
                     for z in ZHI],
         "src": {"ming": SRC + "安身命例", "ju": SRC + "起五行寅例", "ziwei": SRC + "安身命例", "daxian": SRC + "安大限诀", "xiaoxian": SRC + "安小限诀",

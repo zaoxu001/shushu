@@ -127,7 +127,8 @@ def test_srcs_exist_in_classics():
     ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)
     for p in ch["palaces"]:
         for s in p["stars"]:
-            assert s["src"].split("·", 1)[1] in keys, s
+            if not s.get("tongxing"):
+                assert s["src"].split("·", 1)[1] in keys, s
 
 
 def test_geju_hits_are_explained():
@@ -155,3 +156,42 @@ def test_geju_examples():
             assert "君臣庆会" in got and "辅弼拱主" not in got
             return
     pytest.fail("没抽到君臣庆会的盘")
+
+
+# ---------------- 通行杂曜、岁前将前、运限：与 iztro 对拍 ----------------
+from tianzhi_core.ziwei.yunxian import daxian_list, horoscope  # noqa: E402
+
+HORO = json.loads((Path(__file__).parent / "fixtures" / "ziwei_iztro_horo.json").read_text(encoding="utf-8"))
+TXS = ['天官', '天福', '天厨', '天巫', '天月', '阴煞', '孤辰', '寡宿', '蜚廉', '破碎', '华盖', '咸池', '天才', '天寿', '恩光', '天贵']
+LAYER = {'daxian': 'decadal', 'xiaoxian': 'age', 'liunian': 'yearly', 'liuyue': 'monthly', 'liuri': 'daily', 'liushi': 'hourly'}
+
+
+@pytest.mark.parametrize("c", HORO["cases"], ids=lambda c: f'{c["d"]}@{c["t"]}')
+def test_tongxing_and_horoscope_match_iztro(c):
+    y, m, d = map(int, c["d"].split("-"))
+    ch = build_chart(datetime(y, m, d, c["h"], 30), c["g"], leap="half", sihua_ren="左辅")
+    for p in ch["palaces"]:
+        names = {s["name"] for s in p["stars"]}
+        assert {s for s in TXS if s in names} == {s for s in TXS if s in c["adj"][p["zhi"]]}
+        assert (p["suiqian"], p["jiangqian"]) == (c["sq"][p["zhi"]], c["jq"][p["zhi"]])
+    ty, tm, td = map(int, c["t"].split("-"))
+    h = horoscope(ch, datetime(ty, tm, td, c["th"], 30))
+    for L in h["layers"]:
+        t = c["horo"][LAYER[L["key"]]]
+        assert (L["ming"], L["gan"], list(L["sihua"])) == (t["zhi"], t["gan"], t["mut"]), L["key"]
+        if "stars" in L:
+            assert {n: z for z, ns in L["stars"].items() for n in ns} == {k: v for k, v in t["stars"].items() if k[1:] in "禄羊陀魁钺昌曲马鸾喜"}
+
+
+def test_doujun_book_rule():
+    # 安斗君诀：流年太岁宫起正月逆至生月，生月宫起子顺至生时。1990 年四月巳时生，2024 甲辰年：辰逆三位得丑，丑起子顺五位得午
+    ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)
+    h = horoscope(ch, datetime(2024, 3, 1, 12))
+    assert next(L for L in h["layers"] if L["key"] == "liuyue")["doujun"] == "午"
+    assert [x["range"][0] for x in daxian_list(ch)][:3] == [6, 16, 26]
+
+
+def test_feihua_self():
+    ch = build_chart(datetime(1990, 5, 8, 9, 30), 0)
+    for p in ch["palaces"]:
+        assert len(p["fei"]) == 4 and all(f["self"] == (f["to"] == p["zhi"]) for f in p["fei"])
